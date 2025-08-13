@@ -1,14 +1,23 @@
 package telegram
 
 import (
+	"sync"
+
 	"gopkg.in/telebot.v4"
 )
 
 type Handler struct {
+	adminID id
+
+	adminModeMu sync.RWMutex
+	inAdminMode map[int64]struct{}
 }
 
-func NewHandler() *Handler {
-	return &Handler{}
+func NewHandler(adminID int64) *Handler {
+	return &Handler{
+		adminID:     newID(adminID),
+		inAdminMode: make(map[int64]struct{}),
+	}
 }
 
 func (h *Handler) Use(b *telebot.Bot) error {
@@ -43,25 +52,14 @@ func (h *Handler) Use(b *telebot.Bot) error {
 				other: "Contact the administration",
 				uaru:  "Зв'язатися з адміністрацією",
 			},
-			handler: h.admin,
+			handler: h.adminMode,
 		},
 	}
-	return cmds.set(b)
-}
+	err := cmds.set(b)
+	if err != nil {
+		return err
+	}
 
-func (h Handler) start(c telebot.Context) error {
-	sender := c.Sender()
-	return c.Send(greetings(sender.LanguageCode, sender.Username))
-}
-
-func (h Handler) subscribe(c telebot.Context) error {
-	return c.Send("Sub!")
-}
-
-func (h Handler) unsubscribe(c telebot.Context) error {
-	return c.Send("Unsub!")
-}
-
-func (h Handler) admin(c telebot.Context) error {
-	return c.Send("Admin!")
+	b.Handle(telebot.OnText, h.onText)
+	return nil
 }

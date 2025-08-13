@@ -9,6 +9,7 @@ type (
 
 	Tg struct {
 		BotToken string `envconfig:"TG_BOT_TOKEN" required:"true"`
+		AdminID  int64  `envconfig:"TG_ADMIN_ID" required:"true"`
 	}
 )
 
