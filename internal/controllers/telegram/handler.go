@@ -1,6 +1,7 @@
 package telegram
 
 import (
+	"bot/internal/utils/lang"
 	"sync"
 
 	"gopkg.in/telebot.v4"
@@ -13,7 +14,7 @@ type Handler struct {
 	inAdminMode map[int64]struct{}
 }
 
-func NewHandler(adminID int64) *Handler {
+func New(adminID int64) *Handler {
 	return &Handler{
 		adminID:     newID(adminID),
 		inAdminMode: make(map[int64]struct{}),
@@ -24,34 +25,34 @@ func (h *Handler) Use(b *telebot.Bot) error {
 	cmds := commands{
 		{
 			cmd: "start",
-			description: langString{
-				other: "Greetings",
-				uaru:  "Привітання",
-			},
+			description: lang.NewString(
+				"Greetings",
+				"Привітання",
+			),
 			handler: h.start,
 		},
 		{
 			cmd: "subscribe",
-			description: langString{
-				other: "Subscribe to tournament notifications",
-				uaru:  "Підписка на повідомлення про турніри",
-			},
+			description: lang.NewString(
+				"Subscribe to tournament notifications",
+				"Підписка на повідомлення про турніри",
+			),
 			handler: h.subscribe,
 		},
 		{
 			cmd: "unsubscribe",
-			description: langString{
-				other: "Unsubscribe from tournament notifications",
-				uaru:  "Відписка від повідомлень про турніри",
-			},
+			description: lang.NewString(
+				"Unsubscribe from tournament notifications",
+				"Відписка від повідомлень про турніри",
+			),
 			handler: h.unsubscribe,
 		},
 		{
 			cmd: "admin",
-			description: langString{
-				other: "Contact the administration",
-				uaru:  "Зв'язатися з адміністрацією",
-			},
+			description: lang.NewString(
+				"Contact the administration",
+				"Зв'язатися з адміністрацією",
+			),
 			handler: h.adminMode,
 		},
 	}

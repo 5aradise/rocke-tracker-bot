@@ -27,7 +27,7 @@ func main() {
 		log.Fatal("can't init tg bot: ", err)
 	}
 
-	tgHandler := telegram.NewHandler(cfg.Tg.AdminID)
+	tgHandler := telegram.New(cfg.Tg.AdminID)
 	tgBot.Use(
 		middleware.Recover(),
 	)

@@ -1,6 +1,8 @@
 package telegram
 
 import (
+	"bot/internal/utils/lang"
+
 	"gopkg.in/telebot.v4"
 )
 
@@ -14,11 +16,11 @@ func (h *Handler) adminMode(c telebot.Context) error {
 	if _, inMode := h.inAdminMode[userID]; !inMode {
 		h.inAdminMode[userID] = struct{}{}
 		h.adminModeMu.Unlock()
-		msg = youAreInAdminModeMsg.in(userLang)
+		msg = youAreInAdminModeMsg.In(lang.Code(userLang))
 	} else {
 		delete(h.inAdminMode, userID)
 		h.adminModeMu.Unlock()
-		msg = youAreNotInAdminModeMsg.in(userLang)
+		msg = youAreNotInAdminModeMsg.In(lang.Code(userLang))
 	}
 	return c.Send(msg)
 }

@@ -1,6 +1,6 @@
 module bot
 
-go 1.24.1
+go 1.25
 
 require (
 	github.com/kelseyhightower/envconfig v1.4.0
