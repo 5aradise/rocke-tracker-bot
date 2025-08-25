@@ -3,6 +3,12 @@ package main
 import (
 	"bot/config"
 	"bot/internal/controllers/telegram"
+	subService "bot/internal/services/subscriptions"
+	userService "bot/internal/services/users"
+	subStorage "bot/internal/storage/subscriptions"
+	userStorage "bot/internal/storage/users"
+
+	"bot/pkg/sqlite"
 	"log"
 	"os"
 	"os/signal"
@@ -18,6 +24,22 @@ func main() {
 		log.Fatal("can't load config: ", err)
 	}
 
+	db, err := sqlite.New(cfg.DB.File)
+	if err != nil {
+		log.Fatal("can't init db: ", err)
+	}
+
+	// storages
+	userStor := userStorage.New(db)
+	subStor := subStorage.New(db)
+
+	// services
+	userServ := userService.New(userStor)
+	subServ := subService.New(subStor)
+
+	// controllers
+	tgHandler := telegram.New(userServ, subServ, cfg.Tg.AdminID)
+
 	tgBot, err := telebot.NewBot(telebot.Settings{
 		Token:     cfg.Tg.BotToken,
 		Poller:    &telebot.LongPoller{},
@@ -26,8 +48,6 @@ func main() {
 	if err != nil {
 		log.Fatal("can't init tg bot: ", err)
 	}
-
-	tgHandler := telegram.New(cfg.Tg.AdminID)
 	tgBot.Use(
 		middleware.Recover(),
 	)

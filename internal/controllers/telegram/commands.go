@@ -1,7 +1,7 @@
 package telegram
 
 import (
-	"bot/internal/utils/lang"
+	"bot/pkg/lang"
 	"fmt"
 
 	"gopkg.in/telebot.v4"

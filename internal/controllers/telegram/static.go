@@ -1,8 +1,8 @@
 package telegram
 
 import (
-	"bot/internal/utils/lang"
-	"bot/internal/utils/md"
+	"bot/pkg/lang"
+	"bot/pkg/md"
 	"fmt"
 )
 
@@ -13,6 +13,11 @@ const ( // telegram language codes
 )
 
 var (
+	unexpectedErrorMsgTmpl = lang.NewString(
+		"An unexpected error has occurred:\n%s",
+		"Сталась непередбачувана помилка:\n%s",
+	)
+
 	greetingsMsgTmpl = lang.NewString(
 		"Hello, @%s!\n"+
 			"Here you can follow _Rocket League_ tournaments and maybe something else...\n"+
@@ -20,6 +25,27 @@ var (
 		"Привіт, @%s!\n"+
 			"Тут ти зможеш відслідковувати турніри по грі _Rocket League_ та, можливо, щось ще...\n"+
 			"Переглянь *меню*, щоб побачити всі команди",
+	)
+
+	choosePlayersModeMsg = lang.NewString(
+		"Choose players mode:",
+		"Виберіть режим гравців:",
+	)
+	chooseGameModeMsg = lang.NewString(
+		"Choose game mode:",
+		"Оберіть режим гри:",
+	)
+	youHaveSubscribedMsg = lang.NewString(
+		"You have subscribed for tournament!",
+		"Ви підписались на турнір!",
+	)
+	youAreAlreadySubscribedMsg = lang.NewString(
+		"You are already subscribed for this tournament!",
+		"Ви вже підписані на цей турнір!",
+	)
+	pressStartMsg = lang.NewString(
+		"Press /start",
+		"Натисніть /start",
 	)
 
 	youAreInAdminModeMsg = lang.NewString(
@@ -34,6 +60,10 @@ var (
 	)
 )
 
-func greetingsMsg(langCode string, username string) string {
-	return fmt.Sprintf(greetingsMsgTmpl.In(lang.Code(langCode)), md.Escape(username))
+func greetingsMsg(langCode lang.Code, username string) string {
+	return fmt.Sprintf(greetingsMsgTmpl.In(langCode), md.Escape(username))
+}
+
+func unexpectedErrorMsg(langCode lang.Code, errMsg string) string {
+	return fmt.Sprintf(unexpectedErrorMsgTmpl.In(langCode), md.Escape(errMsg))
 }

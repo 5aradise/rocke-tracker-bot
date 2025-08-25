@@ -1,8 +1,6 @@
 package telegram
 
-import (
-	"strconv"
-)
+import "strconv"
 
 // id implements telebot.Recipient interface
 type id struct {

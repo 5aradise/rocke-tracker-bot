@@ -1,39 +1,34 @@
 package telegram
 
-import (
-	"bot/internal/utils/lang"
-
-	"gopkg.in/telebot.v4"
-)
+import "gopkg.in/telebot.v4"
 
 func (h *Handler) adminMode(c telebot.Context) error {
 	user := c.Sender()
-	userID := user.ID
-	userLang := user.LanguageCode
+	userLang := userLanguage(user)
 
 	var msg string
 	h.adminModeMu.Lock()
-	if _, inMode := h.inAdminMode[userID]; !inMode {
-		h.inAdminMode[userID] = struct{}{}
+	if _, inMode := h.inAdminMode[user.ID]; !inMode {
+		h.inAdminMode[user.ID] = struct{}{}
 		h.adminModeMu.Unlock()
-		msg = youAreInAdminModeMsg.In(lang.Code(userLang))
+		msg = youAreInAdminModeMsg.In(userLang)
 	} else {
-		delete(h.inAdminMode, userID)
+		delete(h.inAdminMode, user.ID)
 		h.adminModeMu.Unlock()
-		msg = youAreNotInAdminModeMsg.In(lang.Code(userLang))
+		msg = youAreNotInAdminModeMsg.In(userLang)
 	}
 	return c.Send(msg)
 }
 
 func (h *Handler) onText(c telebot.Context) error {
-	senderID := c.Sender().ID
+	sender := c.Sender()
 
-	if senderID == h.adminID.value {
+	if sender.ID == h.adminID.value {
 		return h.handleAdminMessage(c)
 	}
 
 	h.adminModeMu.RLock()
-	_, inMode := h.inAdminMode[senderID]
+	_, inMode := h.inAdminMode[sender.ID]
 	h.adminModeMu.RUnlock()
 	if inMode {
 		return h.handleAdminModeMessage(c)
