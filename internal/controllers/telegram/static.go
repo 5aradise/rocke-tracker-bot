@@ -58,6 +58,11 @@ var (
 		"You aren't in *admin mode*",
 		"Ви вийшли з *адміністраторського моду*",
 	)
+
+	tournamentStartsInMsgTmpl = lang.NewString(
+		"The tournament starts in *10 minutes*\nPlayers: %s\nMode: %s",
+		"Через *10 хвилин* турнір\nГравці: %s\nРежим: %s",
+	)
 )
 
 func greetingsMsg(langCode lang.Code, username string) string {
@@ -66,4 +71,8 @@ func greetingsMsg(langCode lang.Code, username string) string {
 
 func unexpectedErrorMsg(langCode lang.Code, errMsg string) string {
 	return fmt.Sprintf(unexpectedErrorMsgTmpl.In(langCode), md.Escape(errMsg))
+}
+
+func tournamentStartsInMsg(langCode lang.Code, players, mode string) string {
+	return fmt.Sprintf(tournamentStartsInMsgTmpl.In(langCode), players, mode)
 }

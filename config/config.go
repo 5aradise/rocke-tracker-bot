@@ -4,13 +4,19 @@ import "github.com/kelseyhightower/envconfig"
 
 type (
 	Config struct {
-		Tg Tg
-		DB DB
+		Tg  Tg
+		API API
+		DB  DB
 	}
 
 	Tg struct {
 		BotToken string `envconfig:"TG_BOT_TOKEN" required:"true"`
 		AdminID  int64  `envconfig:"TG_ADMIN_ID" required:"true"`
+	}
+
+	API struct {
+		Key    string `envconfig:"API_KEY" required:"true"`
+		Region string `envconfig:"API_REGION" required:"true"`
 	}
 
 	DB struct {

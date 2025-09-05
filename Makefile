@@ -4,7 +4,7 @@ export $(shell sed 's/=.*//' .env)
 .PHONY: build run migrate-up migrate-down
 
 run: build
-	./bin/bot -env ./.env
+	./bin/bot
 
 build:
 	go build -C cmd/bot/ -o ../../bin/

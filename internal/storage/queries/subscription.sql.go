@@ -51,3 +51,38 @@ func (q Queries) DeleteSubscription(ctx context.Context, arg DeleteSubscriptionP
 	}
 	return result.RowsAffected()
 }
+
+const listTelegramIDsBySubscription = `-- name: ListTelegramIDsBySubscription :many
+SELECT telegram_id FROM users
+JOIN subscriptions ON subscriptions.user_id = users.id
+WHERE subscriptions.players = ?
+AND subscriptions.mode = ?
+`
+
+type ListTelegramIDsBySubscriptionParams struct {
+	Players string
+	Mode    string
+}
+
+func (q Queries) ListTelegramIDsBySubscription(ctx context.Context, arg ListTelegramIDsBySubscriptionParams) ([]sql.NullInt64, error) {
+	rows, err := q.db.QueryContext(ctx, listTelegramIDsBySubscription, arg.Players, arg.Mode)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []sql.NullInt64
+	for rows.Next() {
+		var telegram_id sql.NullInt64
+		if err := rows.Scan(&telegram_id); err != nil {
+			return nil, err
+		}
+		items = append(items, telegram_id)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

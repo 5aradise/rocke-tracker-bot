@@ -2,6 +2,7 @@ package subService
 
 import (
 	"bot/config"
+	rocketleagueapi "bot/internal/external/http/rocket-league-api"
 	model "bot/internal/models"
 	subStorage "bot/internal/storage/subscriptions"
 	"context"
@@ -10,11 +11,15 @@ import (
 )
 
 type Service struct {
+	api  rocketleagueapi.API
 	subs subStorage.Storage
 }
 
-func New(subStor subStorage.Storage) *Service {
-	return &Service{subStor}
+func New(api rocketleagueapi.API, subStor subStorage.Storage) *Service {
+	return &Service{
+		api:  api,
+		subs: subStor,
+	}
 }
 
 // Codes: [config.CodeUserHasSub], [config.CodeUserWithTgIDNotExist]

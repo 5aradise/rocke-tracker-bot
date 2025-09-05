@@ -42,3 +42,19 @@ func (s Storage) CreateSubscriptionByTelegramID(ctx context.Context, tgID int64,
 
 	return subID, nil
 }
+
+func (s Storage) ListTelegramIDsBySubscription(ctx context.Context, sub model.Subscription) ([]int64, error) {
+	tgIDs, err := queries.New(s.db).ListTelegramIDsBySubscription(ctx, queries.ListTelegramIDsBySubscriptionParams{
+		Players: adapter.PlayersToDB(sub.Players),
+		Mode:    adapter.ModeToDB(sub.Mode),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	ids := make([]int64, 0, len(tgIDs))
+	for _, id := range tgIDs {
+		ids = append(ids, id.Int64)
+	}
+	return ids, nil
+}

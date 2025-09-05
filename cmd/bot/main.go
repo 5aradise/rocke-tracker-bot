@@ -3,10 +3,13 @@ package main
 import (
 	"bot/config"
 	"bot/internal/controllers/telegram"
+	rocketleagueapi "bot/internal/external/http/rocket-league-api"
+	model "bot/internal/models"
 	subService "bot/internal/services/subscriptions"
 	userService "bot/internal/services/users"
 	subStorage "bot/internal/storage/subscriptions"
 	userStorage "bot/internal/storage/users"
+	"net/http"
 
 	"bot/pkg/sqlite"
 	"log"
@@ -29,13 +32,22 @@ func main() {
 		log.Fatal("can't init db: ", err)
 	}
 
+	tgNotificationCh := make(chan model.TgNotification)
+
 	// storages
 	userStor := userStorage.New(db)
 	subStor := subStorage.New(db)
 
+	// external
+	rlApi := rocketleagueapi.New(rocketleagueapi.Options{
+		Key:    cfg.API.Key,
+		Region: cfg.API.Region,
+		Client: &http.Client{},
+	})
+
 	// services
 	userServ := userService.New(userStor)
-	subServ := subService.New(subStor)
+	subServ := subService.New(rlApi, subStor)
 
 	// controllers
 	tgHandler := telegram.New(userServ, subServ, cfg.Tg.AdminID)
@@ -48,6 +60,7 @@ func main() {
 	if err != nil {
 		log.Fatal("can't init tg bot: ", err)
 	}
+
 	tgBot.Use(
 		middleware.Recover(),
 	)
@@ -56,14 +69,15 @@ func main() {
 		log.Fatal("can't use handler: ", err)
 	}
 
-	go func(tgBot *telebot.Bot) {
-		interrupt := make(chan os.Signal, 1)
-		signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)
-		<-interrupt
-		tgBot.Stop()
-	}(tgBot)
+	interrupt := make(chan os.Signal, 1)
+	signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)
 
+	go tgHandler.Notify(tgBot, tgNotificationCh)
+	go subServ.RunNotifications(tgNotificationCh)
+	go tgBot.Start()
 	log.Println("tg bot is running")
-	tgBot.Start()
+
+	<-interrupt
+	tgBot.Stop()
 	log.Println("tg bot is shutted down")
 }
