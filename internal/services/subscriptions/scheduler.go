@@ -11,6 +11,9 @@ const (
 	updateDelay     = 24 * time.Hour
 	tournamentDelay = 10 * time.Minute
 	timeForDB       = 2 * time.Minute
+
+	tryCount = 3
+	tryDelay = 10 * time.Second
 )
 
 type notifier struct {
@@ -26,10 +29,26 @@ func (s *Service) RunNotifications(tgC chan model.TgNotification) {
 	tick := time.Tick(updateDelay)
 	log.Println("start scheduling notifications")
 	for {
-		ts := s.api.Tournaments()
-		ntf.scheduleNotifications(ts)
+		if ts := s.fetchWithRetries(); ts != nil {
+			ntf.scheduleNotifications(ts)
+		} else {
+			log.Printf("can't fetch tournaments: next update in %s day\n", updateDelay)
+		}
 		<-tick
 	}
+}
+
+func (s *Service) fetchWithRetries() []model.Tournament {
+	for i := range tryCount {
+		ts, err := s.api.Tournaments()
+		if err != nil {
+			log.Printf("(try %d) can't fetch tournaments: %s\n", i+1, err)
+			time.Sleep(tryDelay)
+			continue
+		}
+		return ts
+	}
+	return nil
 }
 
 func (ntf notifier) scheduleNotifications(ts []model.Tournament) {

@@ -3,11 +3,17 @@ package rocketleagueapi
 import (
 	model "bot/internal/models"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"log"
 	"net/http"
 )
 
 const tournamentsUrl = "https://rocket-league1.p.rapidapi.com/tournaments/"
+
+var (
+	ErrRequestLimitExceeded = errors.New("request limit exceeded")
+)
 
 type API struct {
 	key    string
@@ -29,7 +35,7 @@ func New(opts Options) API {
 	}
 }
 
-func (api API) Tournaments() []model.Tournament {
+func (api API) Tournaments() ([]model.Tournament, error) {
 	req, err := http.NewRequest(http.MethodGet, api.url, nil)
 	if err != nil {
 		panic(err)
@@ -39,18 +45,26 @@ func (api API) Tournaments() []model.Tournament {
 	log.Println("making request to api")
 	res, err := api.client.Do(req)
 	if err != nil {
-		panic(err)
+		return nil, fmt.Errorf("making request: %w", err)
 	}
 	defer res.Body.Close()
 
-	var resp Response
-	err = json.NewDecoder(res.Body).Decode(&resp)
+	switch res.StatusCode {
+	default:
+		return nil, fmt.Errorf("bad response status: %s", res.Status)
+	case http.StatusTooManyRequests:
+		return nil, ErrRequestLimitExceeded
+	case http.StatusOK:
+	}
+
+	var body Response
+	err = json.NewDecoder(res.Body).Decode(&body)
 	if err != nil {
 		panic(err)
 	}
-	log.Println("received:", resp)
+	log.Println("received:", body)
 
-	return resp.ToModel()
+	return body.ToModel(), nil
 }
 
 func setHeaders(h http.Header, apiKey string) {
