@@ -39,14 +39,19 @@ func (s *Service) RunNotifications(tgC chan model.TgNotification) {
 }
 
 func (s *Service) fetchWithRetries() []model.Tournament {
-	for i := range tryCount {
-		ts, err := s.api.Tournaments()
-		if err != nil {
-			log.Printf("(try %d) can't fetch tournaments: %s\n", i+1, err)
-			time.Sleep(tryDelay)
-			continue
-		}
+	ts, err := s.api.Tournaments()
+	if err == nil {
 		return ts
+	}
+	log.Printf("can't fetch tournaments: %s\n", err)
+	for i := range tryCount - 1 {
+		time.Sleep(tryDelay)
+
+		ts, err := s.api.Tournaments()
+		if err == nil {
+			return ts
+		}
+		log.Printf("(try %d) can't fetch tournaments: %s\n", i+2, err)
 	}
 	return nil
 }
