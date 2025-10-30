@@ -1,0 +1,83 @@
+version: "2"
+
+run:
+  timeout: 5m
+
+linters:
+  default: none
+  enable:
+    - asciicheck
+    - bodyclose
+    - canonicalheader
+    - durationcheck
+    - errcheck
+    - errchkjson
+    - errorlint
+    - exhaustive
+    - exptostd
+    - forbidigo
+    - forcetypeassert
+    - funcorder
+    - gocheckcompilerdirectives
+    - goconst
+    - godox
+    - gosec
+    - gosmopolitan
+    - govet
+    - iface
+    - ineffassign
+    - intrange
+    - ireturn
+    - loggercheck
+    - makezero
+    - misspell
+    - nosprintfhostport
+    - prealloc
+    - revive
+    - rowserrcheck
+    - sqlclosecheck
+    - staticcheck
+    - tagliatelle
+    - unconvert
+    - unqueryvet
+    - unused
+    - usestdlibvars
+  settings:
+    exhaustive:
+      default-signifies-exhaustive: true
+      settings:
+    forbidigo:
+      forbid:
+        - pattern: ^print(ln)?$
+          msg: Do not commit print statements.
+        - pattern: ^fmt\.Print.*$
+          msg: Do not commit print statements.
+    revive:
+      enable-all-rules: true
+      rules:
+        - name: exported
+          disabled: true
+        - name: package-comments
+          disabled: true
+        - name: package-directory-mismatch
+          disabled: true
+        - name: import-alias-naming
+          disabled: true
+        - name: nested-structs
+          disabled: true
+        - name: add-constant
+          arguments:
+            - allow-strs: '""'
+              allow-ints: "0,1,2"
+              allow-floats: "0.0,0.,1.0,1.,2.0,2."
+        - name: line-length-limit
+          arguments: [90]
+        - name: enforce-switch-style
+          arguments: ["allowNoDefault"]
+  exclude-rules:
+    - _test\.go
+    - _gen\.go
+
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0

@@ -1,0 +1,19 @@
+pre-commit:
+  parallel: true
+  commands:
+    fmt:
+      run: make fmt
+    lint:
+      run: make lint
+
+pre-push:
+  parallel: true
+  commands:
+    fmt:
+      run: make fmt
+    lint:
+      run: make lint
+    test:
+      run: make test
+    build:
+      run: make build

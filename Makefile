@@ -1,7 +1,7 @@
 include .env
 export $(shell sed 's/=.*//' .env)
 
-.PHONY: build run migrate-up migrate-down
+.PHONY: build run fmt lint migrate-up migrate-down
 
 run: build
 	./bin/bot
@@ -9,9 +9,14 @@ run: build
 build:
 	go build -C cmd/bot/ -o ../../bin/
 
+fmt:
+	goimports -w .
+
+lint:
+	golangci-lint run
+
 migrate-up: 
 	GOOSE_MIGRATION_DIR=sql/schema goose sqlite3 ./data.db up
 
 migrate-down: 
 	GOOSE_MIGRATION_DIR=sql/schema goose sqlite3 ./data.db down
-	
