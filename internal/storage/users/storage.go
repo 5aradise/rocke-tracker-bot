@@ -1,4 +1,4 @@
-package userStorage
+package userstorage
 
 import (
 	"bot/config"

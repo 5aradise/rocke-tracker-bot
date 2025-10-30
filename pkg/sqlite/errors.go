@@ -9,8 +9,8 @@ import (
 type ErrType int
 
 const (
-	CONSTRAINT_NOTNULL = 1299
-	CONSTRAINT_UNIQUE  = 2067
+	CONSTRAINT_NOTNULL = 1299 //nolint
+	CONSTRAINT_UNIQUE  = 2067 //nolint
 )
 
 // func IsUniqueConstraintError(err error) bool {

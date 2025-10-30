@@ -20,10 +20,10 @@ var (
 
 	greetingsMsgTmpl = lang.NewString(
 		"Hello, @%s!\n"+
-			"Here you can follow _Rocket League_ tournaments and maybe something else...\n"+
+			"Here you can follow _Rocket League_ tournaments and maybe something else...\n"+ //nolint
 			"Check out the *menu* to see all the commands",
 		"Привіт, @%s!\n"+
-			"Тут ти зможеш відслідковувати турніри по грі _Rocket League_ та, можливо, щось ще...\n"+
+			"Тут ти зможеш відслідковувати турніри по грі _Rocket League_ та, можливо, щось ще...\n"+ //nolint
 			"Переглянь *меню*, щоб побачити всі команди",
 	)
 

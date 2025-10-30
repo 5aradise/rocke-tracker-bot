@@ -2,7 +2,7 @@ package telegram
 
 import (
 	rocketleague "bot/internal/models/rocket-league"
-	subService "bot/internal/services/subscriptions"
+	subservice "bot/internal/services/subscriptions"
 	userService "bot/internal/services/users"
 	"bot/pkg/lang"
 	"sync"
@@ -12,7 +12,7 @@ import (
 
 type Handler struct {
 	users *userService.Service
-	subs  *subService.Service
+	subs  *subservice.Service
 
 	selectedPlayersMu sync.Mutex
 	selectedPlayers   map[int64]rocketleague.Players
@@ -23,7 +23,8 @@ type Handler struct {
 	inAdminMode map[int64]struct{}
 }
 
-func New(userServ *userService.Service, subServ *subService.Service, adminID int64) *Handler {
+func New(userServ *userService.Service, subServ *subservice.Service, adminID int64,
+) *Handler {
 	return &Handler{
 		users: userServ,
 		subs:  subServ,
@@ -75,7 +76,7 @@ func (h *Handler) Use(b *telebot.Bot) error {
 		return err
 	}
 
-	// buttons (subscribtion)
+	// buttons (subscription)
 	b.Handle(&players2x2Btn, h.onPlayersBtn(rocketleague.P2x2))
 	b.Handle(&players3x3Btn, h.onPlayersBtn(rocketleague.P3x3))
 	b.Handle(&modeSoccerBtn, h.onModeBtn(rocketleague.Soccer))

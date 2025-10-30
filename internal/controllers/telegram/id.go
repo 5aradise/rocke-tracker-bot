@@ -11,7 +11,7 @@ type id struct {
 func newID(value int64) id {
 	return id{
 		value: value,
-		s:     strconv.FormatInt(value, 10),
+		s:     strconv.Itoa(int(value)),
 	}
 }
 

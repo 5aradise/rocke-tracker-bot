@@ -9,7 +9,7 @@ import (
 	"gopkg.in/telebot.v4"
 )
 
-func (h *Handler) Notify(b *telebot.Bot, c <-chan model.TgNotification) {
+func (*Handler) Notify(b *telebot.Bot, c <-chan model.TgNotification) {
 	log.Println("start sending notifications via telegram")
 	for ntf := range c {
 		players, mode := subStr(ntf.Tournament)
@@ -32,16 +32,12 @@ func subStr(sub model.Subscription) (players, mode string) {
 		players = "2x2"
 	case rocketleague.P3x3:
 		players = "3x3"
-	default:
-		panic("unknown players mode")
 	}
 	switch sub.Mode {
 	case rocketleague.Soccer:
 		mode = "Soccer"
 	case rocketleague.Pentathlon:
 		mode = "Pentathlon"
-	default:
-		panic("unknown game mode")
 	}
-	return
+	return players, mode
 }

@@ -1,4 +1,4 @@
-package userService
+package userservice
 
 import (
 	"bot/config"

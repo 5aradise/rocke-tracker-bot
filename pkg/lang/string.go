@@ -38,7 +38,8 @@ func (s String) In(lang Code) string {
 		return s.en
 	case Ukrainian, Russian:
 		return s.uaru
-	default:
+	case Other:
 		return s.other
 	}
+	panic("unknown language")
 }

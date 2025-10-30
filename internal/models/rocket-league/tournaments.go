@@ -13,9 +13,8 @@ func (m Mode) String() string {
 		return "Soccer"
 	case Pentathlon:
 		return "Pentathlon"
-	default:
-		panic("unknown game mode")
 	}
+	panic("unknown game mode")
 }
 
 type Players uint8
@@ -31,7 +30,6 @@ func (p Players) String() string {
 		return "2x2"
 	case P3x3:
 		return "3x3"
-	default:
-		panic("unknown players mode")
 	}
+	panic("unknown players mode")
 }

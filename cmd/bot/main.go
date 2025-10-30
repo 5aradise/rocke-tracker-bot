@@ -5,10 +5,10 @@ import (
 	"bot/internal/controllers/telegram"
 	rocketleagueapi "bot/internal/external/http/rocket-league-api"
 	model "bot/internal/models"
-	subService "bot/internal/services/subscriptions"
-	userService "bot/internal/services/users"
-	subStorage "bot/internal/storage/subscriptions"
-	userStorage "bot/internal/storage/users"
+	subservice "bot/internal/services/subscriptions"
+	userservice "bot/internal/services/users"
+	substorage "bot/internal/storage/subscriptions"
+	userstorage "bot/internal/storage/users"
 	"net/http"
 
 	"bot/pkg/sqlite"
@@ -19,6 +19,7 @@ import (
 
 	"gopkg.in/telebot.v4"
 	"gopkg.in/telebot.v4/middleware"
+	_ "modernc.org/sqlite"
 )
 
 func main() {
@@ -35,19 +36,19 @@ func main() {
 	tgNotificationCh := make(chan model.TgNotification)
 
 	// storages
-	userStor := userStorage.New(db)
-	subStor := subStorage.New(db)
+	userStor := userstorage.New(db)
+	subStor := substorage.New(db)
 
 	// external
-	rlApi := rocketleagueapi.New(rocketleagueapi.Options{
+	rlAPI := rocketleagueapi.New(rocketleagueapi.Options{
 		Key:    cfg.API.Key,
 		Region: cfg.API.Region,
 		Client: &http.Client{},
 	})
 
 	// services
-	userServ := userService.New(userStor)
-	subServ := subService.New(rlApi, subStor)
+	userServ := userservice.New(userStor)
+	subServ := subservice.New(rlAPI, subStor)
 
 	// controllers
 	tgHandler := telegram.New(userServ, subServ, cfg.Tg.AdminID)

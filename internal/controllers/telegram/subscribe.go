@@ -29,7 +29,7 @@ func init() {
 	)
 }
 
-func (h *Handler) subscribe(c telebot.Context) error {
+func (*Handler) subscribe(c telebot.Context) error {
 	user := c.Sender()
 	userLang := userLanguage(user)
 
@@ -87,6 +87,6 @@ func (h *Handler) createSub(c telebot.Context, sub model.Subscription) error {
 	return c.Send(youHaveSubscribedMsg.In(userLang))
 }
 
-func (h *Handler) unsubscribe(c telebot.Context) error {
+func (*Handler) unsubscribe(c telebot.Context) error {
 	return c.Send("Unsub!")
 }

@@ -14,9 +14,9 @@ func (h *Handler) start(c telebot.Context) error {
 	_, serr := h.users.CreateUser(context.TODO(), user.ID)
 	if !serr.IsZero() {
 		switch serr.Code {
+		case config.CodeUserWithTgIDExist:
 		default:
 			return c.Send(unexpectedErrorMsg(userLang, serr.Error()))
-		case config.CodeUserWithTgIDExist:
 		}
 	}
 

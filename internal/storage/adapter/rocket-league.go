@@ -8,9 +8,8 @@ func PlayersToDB(p rocketleague.Players) string {
 		return "2x2"
 	case rocketleague.P3x3:
 		return "3x3"
-	default:
-		panic("unknown players mode")
 	}
+	panic("unknown players mode")
 }
 
 func ModeToDB(m rocketleague.Mode) string {
@@ -19,7 +18,6 @@ func ModeToDB(m rocketleague.Mode) string {
 		return "soccer"
 	case rocketleague.Pentathlon:
 		return "pentathlon"
-	default:
-		panic("unknown tournament mode")
 	}
+	panic("unknown tournament mode")
 }

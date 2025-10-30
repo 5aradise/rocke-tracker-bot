@@ -37,7 +37,7 @@ func (h *Handler) onText(c telebot.Context) error {
 	return nil
 }
 
-func (h *Handler) handleAdminMessage(c telebot.Context) error {
+func (*Handler) handleAdminMessage(c telebot.Context) error {
 	msg := c.Message()
 	if !msg.IsReply() {
 		return nil

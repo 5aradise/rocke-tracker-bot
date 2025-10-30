@@ -42,9 +42,9 @@ func (resp Response) ToModel() []model.Tournament {
 
 func players(n int) (rocketleague.Players, error) {
 	switch n {
-	case 2:
+	case 2: //nolint
 		return rocketleague.P2x2, nil
-	case 3:
+	case 3: //nolint
 		return rocketleague.P3x3, nil
 	default:
 		return 0, fmt.Errorf("unknown number of players mode: %d", n)

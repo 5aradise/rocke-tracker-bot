@@ -1,4 +1,4 @@
-package subStorage
+package substorage
 
 import (
 	"bot/config"
@@ -20,15 +20,17 @@ func New(db *sql.DB) Storage {
 	}
 }
 
-func (s Storage) CreateSubscriptionByTelegramID(ctx context.Context, tgID int64, sub model.Subscription) (int64, error) {
-	subID, err := queries.New(s.db).CreateSubscriptionByTelegramID(ctx, queries.CreateSubscriptionByTelegramIDParams{
-		TelegramID: sql.NullInt64{
-			Int64: tgID,
-			Valid: true,
-		},
-		Players: adapter.PlayersToDB(sub.Players),
-		Mode:    adapter.ModeToDB(sub.Mode),
-	})
+func (s Storage) CreateSubscriptionByTelegramID(
+	ctx context.Context, tgID int64, sub model.Subscription) (int64, error) {
+	subID, err := queries.New(s.db).CreateSubscriptionByTelegramID(ctx,
+		queries.CreateSubscriptionByTelegramIDParams{
+			TelegramID: sql.NullInt64{
+				Int64: tgID,
+				Valid: true,
+			},
+			Players: adapter.PlayersToDB(sub.Players),
+			Mode:    adapter.ModeToDB(sub.Mode),
+		})
 	if err != nil {
 		switch sqlite.ErrorType(err) {
 		case sqlite.CONSTRAINT_UNIQUE:
@@ -43,11 +45,13 @@ func (s Storage) CreateSubscriptionByTelegramID(ctx context.Context, tgID int64,
 	return subID, nil
 }
 
-func (s Storage) ListTelegramIDsBySubscription(ctx context.Context, sub model.Subscription) ([]int64, error) {
-	tgIDs, err := queries.New(s.db).ListTelegramIDsBySubscription(ctx, queries.ListTelegramIDsBySubscriptionParams{
-		Players: adapter.PlayersToDB(sub.Players),
-		Mode:    adapter.ModeToDB(sub.Mode),
-	})
+func (s Storage) ListTelegramIDsBySubscription(
+	ctx context.Context, sub model.Subscription) ([]int64, error) {
+	tgIDs, err := queries.New(s.db).ListTelegramIDsBySubscription(ctx,
+		queries.ListTelegramIDsBySubscriptionParams{
+			Players: adapter.PlayersToDB(sub.Players),
+			Mode:    adapter.ModeToDB(sub.Mode),
+		})
 	if err != nil {
 		return nil, err
 	}

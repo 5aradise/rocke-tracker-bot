@@ -1,4 +1,4 @@
-package subService
+package subservice
 
 import (
 	"bot/config"
@@ -23,7 +23,8 @@ func New(api rocketleagueapi.API, subStor subStorage.Storage) *Service {
 }
 
 // Codes: [config.CodeUserHasSub], [config.CodeUserWithTgIDNotExist]
-func (s *Service) SubscribeByTelegram(ctx context.Context, tgID int64, sub model.Subscription) (int64, config.Error) {
+func (s *Service) SubscribeByTelegram(ctx context.Context,
+	tgID int64, sub model.Subscription) (int64, config.Error) {
 	id, err := s.subs.CreateSubscriptionByTelegramID(ctx, tgID, sub)
 	if err != nil {
 		if errors.Is(err, config.ErrUniqueConstraint) {

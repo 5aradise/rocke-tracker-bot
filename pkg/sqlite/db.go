@@ -1,10 +1,6 @@
 package sqlite
 
-import (
-	"database/sql"
-
-	_ "modernc.org/sqlite"
-)
+import "database/sql"
 
 const (
 	driverName             = "sqlite"

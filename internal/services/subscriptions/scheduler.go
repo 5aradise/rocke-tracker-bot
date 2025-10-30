@@ -1,4 +1,4 @@
-package subService
+package subservice
 
 import (
 	model "bot/internal/models"
@@ -51,7 +51,7 @@ func (s *Service) fetchWithRetries() []model.Tournament {
 		if err == nil {
 			return ts
 		}
-		log.Printf("(try %d) can't fetch tournaments: %s\n", i+2, err)
+		log.Printf("(try %d) can't fetch tournaments: %s\n", i+2, err) //nolint
 	}
 	return nil
 }
@@ -66,7 +66,8 @@ func (ntf notifier) scheduleNotifications(ts []model.Tournament) {
 	}
 }
 
-func (ntf notifier) prepareNotification(tourStart time.Time, tourType model.Subscription) {
+func (ntf notifier) prepareNotification(
+	tourStart time.Time, tourType model.Subscription) {
 	log.Printf("preparing notification for %v, that starts at %s\n", tourType, tourStart)
 	tgIDs, err := ntf.s.subs.ListTelegramIDsBySubscription(context.Background(), tourType)
 	if err != nil {

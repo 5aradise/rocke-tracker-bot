@@ -9,7 +9,7 @@ import (
 	"net/http"
 )
 
-const tournamentsUrl = "https://rocket-league1.p.rapidapi.com/tournaments/"
+const tournamentsURL = "https://rocket-league1.p.rapidapi.com/tournaments/"
 
 var (
 	ErrRequestLimitExceeded = errors.New("request limit exceeded")
@@ -30,7 +30,7 @@ type Options struct {
 func New(opts Options) API {
 	return API{
 		key:    opts.Key,
-		url:    tournamentsUrl + opts.Region,
+		url:    tournamentsURL + opts.Region,
 		client: opts.Client,
 	}
 }
@@ -47,14 +47,19 @@ func (api API) Tournaments() ([]model.Tournament, error) {
 	if err != nil {
 		return nil, fmt.Errorf("making request: %w", err)
 	}
-	defer res.Body.Close()
+	defer func() {
+		err := res.Body.Close()
+		if err != nil {
+			log.Printf("can't close response body: %s\n", err)
+		}
+	}()
 
 	switch res.StatusCode {
-	default:
-		return nil, fmt.Errorf("bad response status: %s", res.Status)
+	case http.StatusOK:
 	case http.StatusTooManyRequests:
 		return nil, ErrRequestLimitExceeded
-	case http.StatusOK:
+	default:
+		return nil, fmt.Errorf("bad response status: %s", res.Status)
 	}
 
 	var body Response
@@ -68,8 +73,8 @@ func (api API) Tournaments() ([]model.Tournament, error) {
 }
 
 func setHeaders(h http.Header, apiKey string) {
-	h.Add("x-rapidapi-key", apiKey)
-	h.Add("x-rapidapi-host", "rocket-league1.p.rapidapi.com")
+	h.Add("X-Rapidapi-Key", apiKey)
+	h.Add("X-Rapidapi-Host", "rocket-league1.p.rapidapi.com")
 	h.Add("User-Agent", "RockeTracker bot")
 	h.Add("Accept-Encoding", "identity")
 }
