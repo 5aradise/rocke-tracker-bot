@@ -9,8 +9,11 @@ bin/
 # Test binary, built with `go test -c`
 *.test
 
-# Output of the go coverage tool, specifically when used with LiteIDE
+# Code coverage profiles and other test artifacts
 *.out
+coverage.*
+*.coverprofile
+profile.cov
 
 # Go workspace file
 go.work
@@ -18,6 +21,14 @@ go.work.sum
 
 # Environment
 .env
+!.env.example
+
+# macOS system files
+.DS_Store
+
+# Editor/IDE
+.idea/
+.vscode/
 
 # Database
 *.db
