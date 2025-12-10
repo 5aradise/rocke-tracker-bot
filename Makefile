@@ -9,6 +9,9 @@ run: build
 build:
 	go build -C cmd/bot/ -o ../../bin/
 
+test:
+	go test ./... -timeout 60s -v -cover -race
+
 fmt:
 	goimports -w .
 

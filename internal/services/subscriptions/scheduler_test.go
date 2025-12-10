@@ -6,6 +6,7 @@ import (
 	rocketleague "bot/internal/models/rocket-league"
 	"context"
 	"slices"
+	"sync"
 	"testing"
 	"time"
 
@@ -264,20 +265,27 @@ func TestAtFunc(t *testing.T) {
 }
 
 type mockRocketLeagueAPI struct {
+	mu    sync.Mutex
 	tours []model.Tournament
 }
 
 func (m *mockRocketLeagueAPI) Tournaments() ([]model.Tournament, error) {
-	return m.tours, nil
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	return slices.Clone(m.tours), nil
 }
 
 type mockSubStorage struct {
 	returnSubID  int64
+	mu           sync.Mutex
 	idsBySub     map[model.Subscription][]int64
 	unexistedIDs []int64
 }
 
 func (m *mockSubStorage) CreateSubscriptionByTelegramID(ctx context.Context, tgID int64, sub model.Subscription) (int64, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
 	if slices.Contains(m.unexistedIDs, tgID) {
 		return 0, config.ErrNotFound
 	}
@@ -297,6 +305,9 @@ func (m *mockSubStorage) CreateSubscriptionByTelegramID(ctx context.Context, tgI
 }
 
 func (m *mockSubStorage) ListTelegramIDsBySubscription(ctx context.Context, sub model.Subscription) ([]int64, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
 	if m.idsBySub == nil {
 		return nil, nil
 	}
@@ -305,6 +316,9 @@ func (m *mockSubStorage) ListTelegramIDsBySubscription(ctx context.Context, sub 
 }
 
 func (m *mockSubStorage) ListSubscriptionsByTelegramID(ctx context.Context, tgID int64) ([]model.Subscription, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
 	if m.idsBySub == nil {
 		return nil, nil
 	}
