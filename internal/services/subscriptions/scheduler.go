@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-const (
+var (
 	updateDelay     = 24 * time.Hour
 	tournamentDelay = 10 * time.Minute
 	timeForDB       = 2 * time.Minute
@@ -18,10 +18,10 @@ const (
 
 type notifier struct {
 	s   *Service
-	tgC chan model.TgNotification
+	tgC chan<- model.TgNotification
 }
 
-func (s *Service) RunNotifications(tgC chan model.TgNotification) {
+func (s *Service) RunNotifications(tgC chan<- model.TgNotification) {
 	ntf := notifier{
 		s:   s,
 		tgC: tgC,

@@ -1,9 +1,11 @@
 package telegram
 
 import (
+	model "bot/internal/models"
 	"bot/pkg/lang"
 	"bot/pkg/md"
 	"fmt"
+	"strings"
 )
 
 const ( // telegram language codes
@@ -27,6 +29,18 @@ var (
 			"Переглянь *меню*, щоб побачити всі команди",
 	)
 
+	noSubscriptionsMsg = lang.NewString(
+		"You have no subscriptions",
+		"У вас немає підписок",
+	)
+	subscriptionsListHeaderMsg = lang.NewString(
+		"Your subscriptions:",
+		"Ваші підписки:",
+	)
+	tournamentMsgTmpl = lang.NewString(
+		"Players: %s; Mode: %s",
+		"Гравці: %s; Режим: %s",
+	)
 	choosePlayersModeMsg = lang.NewString(
 		"Choose players mode:",
 		"Виберіть режим гравців:",
@@ -75,4 +89,16 @@ func unexpectedErrorMsg(langCode lang.Code, errMsg string) string {
 
 func tournamentStartsInMsg(langCode lang.Code, players, mode string) string {
 	return fmt.Sprintf(tournamentStartsInMsgTmpl.In(langCode), players, mode)
+}
+
+func subscriptionsList(langCode lang.Code, subscriptions []model.Subscription) string {
+	tournamentMsgTmpl := tournamentMsgTmpl.In(langCode)
+
+	msg := strings.Builder{}
+	msg.WriteString(subscriptionsListHeaderMsg.In(langCode))
+	for _, sub := range subscriptions {
+		msg.WriteByte('\n')
+		msg.WriteString(fmt.Sprintf(tournamentMsgTmpl, sub.Players, sub.Mode))
+	}
+	return msg.String()
 }

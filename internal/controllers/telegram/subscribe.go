@@ -29,6 +29,21 @@ func init() {
 	)
 }
 
+func (h *Handler) subscriptions(c telebot.Context) error {
+	user := c.Sender()
+	userLang := userLanguage(user)
+
+	subs, serr := h.subs.ListTelegramUserSubscriptions(context.TODO(), user.ID)
+	if !serr.IsZero() {
+		return c.Send(unexpectedErrorMsg(userLang, serr.Error()))
+	}
+
+	if subs == nil {
+		return c.Send(noSubscriptionsMsg.In(userLang))
+	}
+	return c.Send(subscriptionsList(userLang, subs))
+}
+
 func (*Handler) subscribe(c telebot.Context) error {
 	user := c.Sender()
 	userLang := userLanguage(user)

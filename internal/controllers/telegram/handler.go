@@ -3,7 +3,7 @@ package telegram
 import (
 	rocketleague "bot/internal/models/rocket-league"
 	subservice "bot/internal/services/subscriptions"
-	userService "bot/internal/services/users"
+	userservice "bot/internal/services/users"
 	"bot/pkg/lang"
 	"sync"
 
@@ -11,7 +11,7 @@ import (
 )
 
 type Handler struct {
-	users *userService.Service
+	users *userservice.Service
 	subs  *subservice.Service
 
 	selectedPlayersMu sync.Mutex
@@ -23,7 +23,7 @@ type Handler struct {
 	inAdminMode map[int64]struct{}
 }
 
-func New(userServ *userService.Service, subServ *subservice.Service, adminID int64,
+func New(userServ *userservice.Service, subServ *subservice.Service, adminID int64,
 ) *Handler {
 	return &Handler{
 		users: userServ,
@@ -45,6 +45,14 @@ func (h *Handler) Use(b *telebot.Bot) error {
 				"Привітання",
 			),
 			handler: h.start,
+		},
+		{
+			cmd: "subscriptions",
+			description: lang.NewString(
+				"Current tournament subscriptions",
+				"Поточні підписки на турніри",
+			),
+			handler: h.subscriptions,
 		},
 		{
 			cmd: "subscribe",

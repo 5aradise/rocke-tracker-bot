@@ -2,17 +2,20 @@ package userservice
 
 import (
 	"bot/config"
-	userStorage "bot/internal/storage/users"
 	"context"
 	"errors"
 	"fmt"
 )
 
 type Service struct {
-	users userStorage.Storage
+	users userStorage
 }
 
-func New(userStor userStorage.Storage) *Service {
+type userStorage interface {
+	CreateUser(ctx context.Context, tgID int64) (int64, error)
+}
+
+func New(userStor userStorage) *Service {
 	return &Service{userStor}
 }
 

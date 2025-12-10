@@ -32,8 +32,11 @@ func main() {
 	if err != nil {
 		log.Fatal("can't init db: ", err)
 	}
-
-	tgNotificationCh := make(chan model.TgNotification)
+	defer func() {
+		if err := db.Close(); err != nil {
+			log.Fatal("can't close db: ", err)
+		}
+	}()
 
 	// storages
 	userStor := userstorage.New(db)
@@ -73,6 +76,7 @@ func main() {
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)
 
+	tgNotificationCh := make(chan model.TgNotification, 1)
 	go tgHandler.Notify(tgBot, tgNotificationCh)
 	go subServ.RunNotifications(tgNotificationCh)
 	go tgBot.Start()

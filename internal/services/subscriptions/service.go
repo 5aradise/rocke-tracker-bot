@@ -2,20 +2,31 @@ package subservice
 
 import (
 	"bot/config"
-	rocketleagueapi "bot/internal/external/http/rocket-league-api"
 	model "bot/internal/models"
-	subStorage "bot/internal/storage/subscriptions"
 	"context"
 	"errors"
 	"fmt"
 )
 
 type Service struct {
-	api  rocketleagueapi.API
-	subs subStorage.Storage
+	api  rocketLeagueAPI
+	subs subStorage
 }
 
-func New(api rocketleagueapi.API, subStor subStorage.Storage) *Service {
+type rocketLeagueAPI interface {
+	Tournaments() ([]model.Tournament, error)
+}
+
+type subStorage interface {
+	CreateSubscriptionByTelegramID(ctx context.Context,
+		tgID int64, sub model.Subscription) (int64, error)
+	ListSubscriptionsByTelegramID(ctx context.Context,
+		tgID int64) ([]model.Subscription, error)
+	ListTelegramIDsBySubscription(ctx context.Context,
+		sub model.Subscription) ([]int64, error)
+}
+
+func New(api rocketLeagueAPI, subStor subStorage) *Service {
 	return &Service{
 		api:  api,
 		subs: subStor,
@@ -43,4 +54,14 @@ func (s *Service) SubscribeByTelegram(ctx context.Context,
 	}
 
 	return id, config.NilError
+}
+
+func (s *Service) ListTelegramUserSubscriptions(ctx context.Context,
+	tgID int64) ([]model.Subscription, config.Error) {
+	subs, err := s.subs.ListSubscriptionsByTelegramID(ctx, tgID)
+	if err != nil {
+		return nil, config.NewUnknownError(err)
+	}
+
+	return subs, config.NilError
 }
