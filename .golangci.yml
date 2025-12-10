@@ -46,7 +46,6 @@ linters:
   settings:
     exhaustive:
       default-signifies-exhaustive: true
-      settings:
     forbidigo:
       forbid:
         - pattern: ^print(ln)?$
