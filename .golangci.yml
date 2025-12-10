@@ -2,6 +2,7 @@ version: "2"
 
 run:
   timeout: 5m
+  tests: false
 
 linters:
   default: none
@@ -74,9 +75,6 @@ linters:
           arguments: [90]
         - name: enforce-switch-style
           arguments: ["allowNoDefault"]
-  exclude-rules:
-    - _test\.go
-    - _gen\.go
 
 issues:
   max-issues-per-linter: 0
