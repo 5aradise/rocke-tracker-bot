@@ -18,12 +18,9 @@ type rocketLeagueAPI interface {
 }
 
 type subStorage interface {
-	CreateSubscriptionByTelegramID(ctx context.Context,
-		tgID int64, sub model.Subscription) (int64, error)
-	ListSubscriptionsByTelegramID(ctx context.Context,
-		tgID int64) ([]model.Subscription, error)
-	ListTelegramIDsBySubscription(ctx context.Context,
-		sub model.Subscription) ([]int64, error)
+	CreateSubscriptionByTelegramID(ctx context.Context, tgID int64, sub model.Subscription) (int64, error)
+	ListSubscriptionsByTelegramID(ctx context.Context, tgID int64) ([]model.Subscription, error)
+	ListTelegramIDsBySubscription(ctx context.Context, sub model.Subscription) ([]int64, error)
 }
 
 func New(api rocketLeagueAPI, subStor subStorage) *Service {
@@ -34,8 +31,7 @@ func New(api rocketLeagueAPI, subStor subStorage) *Service {
 }
 
 // Codes: [config.CodeUserHasSub], [config.CodeUserWithTgIDNotExist]
-func (s *Service) SubscribeByTelegram(ctx context.Context,
-	tgID int64, sub model.Subscription) (int64, config.Error) {
+func (s *Service) SubscribeByTelegram(ctx context.Context, tgID int64, sub model.Subscription) (int64, config.Error) {
 	id, err := s.subs.CreateSubscriptionByTelegramID(ctx, tgID, sub)
 	if err != nil {
 		if errors.Is(err, config.ErrUniqueConstraint) {
@@ -56,8 +52,7 @@ func (s *Service) SubscribeByTelegram(ctx context.Context,
 	return id, config.NilError
 }
 
-func (s *Service) ListTelegramUserSubscriptions(ctx context.Context,
-	tgID int64) ([]model.Subscription, config.Error) {
+func (s *Service) ListTelegramUserSubscriptions(ctx context.Context, tgID int64) ([]model.Subscription, config.Error) {
 	subs, err := s.subs.ListSubscriptionsByTelegramID(ctx, tgID)
 	if err != nil {
 		return nil, config.NewUnknownError(err)

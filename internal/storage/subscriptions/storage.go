@@ -20,8 +20,7 @@ func New(db *sql.DB) Storage {
 	}
 }
 
-func (s Storage) CreateSubscriptionByTelegramID(
-	ctx context.Context, tgID int64, sub model.Subscription) (int64, error) {
+func (s Storage) CreateSubscriptionByTelegramID(ctx context.Context, tgID int64, sub model.Subscription) (int64, error) {
 	subID, err := queries.New(s.db).CreateSubscriptionByTelegramID(ctx,
 		queries.CreateSubscriptionByTelegramIDParams{
 			TelegramID: sql.NullInt64{
@@ -45,8 +44,7 @@ func (s Storage) CreateSubscriptionByTelegramID(
 	return subID, nil
 }
 
-func (s Storage) ListSubscriptionsByTelegramID(ctx context.Context,
-	tgID int64) ([]model.Subscription, error) {
+func (s Storage) ListSubscriptionsByTelegramID(ctx context.Context, tgID int64) ([]model.Subscription, error) {
 	subs, err := queries.New(s.db).ListSubscriptionsByTelegramID(ctx, sql.NullInt64{
 		Int64: tgID,
 		Valid: true,

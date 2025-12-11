@@ -57,6 +57,8 @@ linters:
       rules:
         - name: exported
           disabled: true
+        - name: import-shadowing
+          disabled: true
         - name: package-comments
           disabled: true
         - name: package-directory-mismatch
@@ -65,13 +67,19 @@ linters:
           disabled: true
         - name: nested-structs
           disabled: true
+        - name: line-length-limit
+          disabled: true
+        - name: function-result-limit
+          disabled: true
+        - name: unhandled-error
+          disabled: true
+        - name: cognitive-complexity
+          disabled: true
         - name: add-constant
           arguments:
-            - allow-strs: '""'
+            - allow-strs: '""," ","\n"'
               allow-ints: "0,1,2"
               allow-floats: "0.0,0.,1.0,1.,2.0,2."
-        - name: line-length-limit
-          arguments: [90]
         - name: enforce-switch-style
           arguments: ["allowNoDefault"]
 

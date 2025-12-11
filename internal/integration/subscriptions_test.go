@@ -9,17 +9,13 @@ import (
 	userservice "bot/internal/services/users"
 	substorage "bot/internal/storage/subscriptions"
 	userstorage "bot/internal/storage/users"
-	"bot/pkg/sqlite"
 	"context"
 	"testing"
 
-	"github.com/pressly/goose/v3"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestSubscriptionsServiceAndStorage(t *testing.T) {
-	require := require.New(t)
 	soccer2x2 := model.Subscription{
 		Players: rocketleague.P2x2,
 		Mode:    rocketleague.Soccer,
@@ -32,35 +28,14 @@ func TestSubscriptionsServiceAndStorage(t *testing.T) {
 		Players: rocketleague.P3x3,
 		Mode:    rocketleague.Pentathlon,
 	}
-	db, err := sqlite.New(":memory:")
-	if err != nil {
-		require.NoError(err)
-	}
-	defer func() {
-		if err := db.Close(); err != nil {
-			require.NoError(err)
-		}
-	}()
-	goose.SetBaseFS(root.ForIntegrationMigrations)
-	if err := goose.SetDialect("sqlite"); err != nil {
-		require.NoError(err)
-	}
-	if err := goose.Up(db, "sql/schema"); err != nil {
-		require.NoError(err)
-	}
+	db, upDB, downDB, closeDB := root.DBForTests(t)
+	defer closeDB()
 
 	t.Run("Simple", func(t *testing.T) {
 		// Arrange
 		assert := assert.New(t)
-		// db
-		if err := goose.Up(db, "sql/schema"); err != nil {
-			require.NoError(err)
-		}
-		defer func() {
-			if err := goose.Down(db, "sql/schema"); err != nil {
-				require.NoError(err)
-			}
-		}()
+		upDB()
+		defer downDB()
 		// storages
 		userStor := userstorage.New(db)
 		subStor := substorage.New(db)
@@ -87,15 +62,8 @@ func TestSubscriptionsServiceAndStorage(t *testing.T) {
 	t.Run("Multiple users", func(t *testing.T) {
 		// Arrange
 		assert := assert.New(t)
-		// db
-		if err := goose.Up(db, "sql/schema"); err != nil {
-			require.NoError(err)
-		}
-		defer func() {
-			if err := goose.Down(db, "sql/schema"); err != nil {
-				require.NoError(err)
-			}
-		}()
+		upDB()
+		defer downDB()
 		// storages
 		userStor := userstorage.New(db)
 		subStor := substorage.New(db)
@@ -146,15 +114,8 @@ func TestSubscriptionsServiceAndStorage(t *testing.T) {
 	t.Run("Unexisted user subscription", func(t *testing.T) {
 		// Arrange
 		assert := assert.New(t)
-		// db
-		if err := goose.Up(db, "sql/schema"); err != nil {
-			require.NoError(err)
-		}
-		defer func() {
-			if err := goose.Down(db, "sql/schema"); err != nil {
-				require.NoError(err)
-			}
-		}()
+		upDB()
+		defer downDB()
 		// storages
 		userStor := userstorage.New(db)
 		subStor := substorage.New(db)
@@ -174,15 +135,8 @@ func TestSubscriptionsServiceAndStorage(t *testing.T) {
 	t.Run("Same subscription", func(t *testing.T) {
 		// Arrange
 		assert := assert.New(t)
-		// db
-		if err := goose.Up(db, "sql/schema"); err != nil {
-			require.NoError(err)
-		}
-		defer func() {
-			if err := goose.Down(db, "sql/schema"); err != nil {
-				require.NoError(err)
-			}
-		}()
+		upDB()
+		defer downDB()
 		// storages
 		userStor := userstorage.New(db)
 		subStor := substorage.New(db)
@@ -204,15 +158,8 @@ func TestSubscriptionsServiceAndStorage(t *testing.T) {
 	t.Run("Subscriptions of unexisted user should just return empty slice", func(t *testing.T) {
 		// Arrange
 		assert := assert.New(t)
-		// db
-		if err := goose.Up(db, "sql/schema"); err != nil {
-			require.NoError(err)
-		}
-		defer func() {
-			if err := goose.Down(db, "sql/schema"); err != nil {
-				require.NoError(err)
-			}
-		}()
+		upDB()
+		defer downDB()
 		// storages
 		userStor := userstorage.New(db)
 		subStor := substorage.New(db)
