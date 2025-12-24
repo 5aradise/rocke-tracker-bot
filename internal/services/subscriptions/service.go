@@ -21,6 +21,7 @@ type subStorage interface {
 	CreateSubscriptionByTelegramID(ctx context.Context, tgID int64, sub model.Subscription) (int64, error)
 	ListSubscriptionsByTelegramID(ctx context.Context, tgID int64) ([]model.Subscription, error)
 	ListTelegramIDsBySubscription(ctx context.Context, sub model.Subscription) ([]int64, error)
+	DeleteSubscriptionByTelegramID(ctx context.Context, tgID int64, sub model.Subscription) error
 }
 
 func New(api rocketLeagueAPI, subStor subStorage) *Service {
@@ -59,4 +60,21 @@ func (s *Service) ListTelegramUserSubscriptions(ctx context.Context, tgID int64)
 	}
 
 	return subs, config.NilError
+}
+
+// Codes: [config.CodeSubNotExist]
+func (s *Service) UnsubscribeByTelegram(ctx context.Context, tgID int64, sub model.Subscription) config.Error {
+	err := s.subs.DeleteSubscriptionByTelegramID(ctx, tgID, sub)
+	if err != nil {
+		if errors.Is(err, config.ErrNotFound) {
+			return config.NewError(
+				config.CodeSubNotExist,
+				fmt.Errorf("%w: subscription does not exist", err),
+			)
+		}
+
+		return config.NewUnknownError(err)
+	}
+
+	return config.NilError
 }

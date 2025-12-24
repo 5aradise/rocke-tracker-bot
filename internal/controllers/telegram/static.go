@@ -2,6 +2,7 @@ package telegram
 
 import (
 	model "bot/internal/models"
+	rocketleague "bot/internal/models/rocket-league"
 	"bot/pkg/lang"
 	"bot/pkg/md"
 	"fmt"
@@ -18,7 +19,7 @@ var (
 	unexpectedErrorMsgTmpl = lang.NewString(
 		"An unexpected error has occurred:\n%s",
 		"Сталась непередбачувана помилка:\n%s",
-	)
+	) // (error message)
 
 	greetingsMsgTmpl = lang.NewString(
 		"Hello, @%s!\n"+
@@ -27,20 +28,10 @@ var (
 		"Привіт, @%s!\n"+
 			"Тут ти зможеш відслідковувати турніри по грі _Rocket League_ та, можливо, щось ще...\n"+ //nolint
 			"Переглянь *меню*, щоб побачити всі команди",
-	)
+	) // (username)
 
-	noSubscriptionsMsg = lang.NewString(
-		"You have no subscriptions",
-		"У вас немає підписок",
-	)
-	subscriptionsListHeaderMsg = lang.NewString(
-		"Your subscriptions:",
-		"Ваші підписки:",
-	)
-	tournamentMsgTmpl = lang.NewString(
-		"Players: %s; Mode: %s",
-		"Гравці: %s; Режим: %s",
-	)
+	tournamentMsgTmpl = "%s %s" // (mode, players)
+
 	choosePlayersModeMsg = lang.NewString(
 		"Choose players mode:",
 		"Виберіть режим гравців:",
@@ -62,6 +53,28 @@ var (
 		"Натисніть /start",
 	)
 
+	subscriptionsListHeaderMsg = lang.NewString(
+		"Your subscriptions:",
+		"Ваші підписки:",
+	)
+	noSubscriptionsMsg = lang.NewString(
+		"You have no subscriptions",
+		"У вас немає підписок",
+	)
+
+	selectUnsubMsg = lang.NewString(
+		"Select the tournament you want to unsubscribe from:",
+		"Оберіть, від якого турніру ви хочете відписатись:",
+	)
+	youHaveUnsubscribedMsg = lang.NewString(
+		"You have unsubscribed from tournament!",
+		"Ви відписались від турніру!",
+	)
+	youAreAlreadyUnsubscribedMsg = lang.NewString(
+		"You are already unsubscribed from this tournament!",
+		"Ви вже відписані від цього турніру!",
+	)
+
 	youAreInAdminModeMsg = lang.NewString(
 		"You are in *admin mode*, each of your subsequent _text messages_ "+
 			"will be sent to the administration.\nTo exit, type /admin again",
@@ -76,7 +89,7 @@ var (
 	tournamentStartsInMsgTmpl = lang.NewString(
 		"The tournament starts in *10 minutes*\nPlayers: %s\nMode: %s",
 		"Через *10 хвилин* турнір\nГравці: %s\nРежим: %s",
-	)
+	) // (players, mode)
 )
 
 func greetingsMsg(langCode lang.Code, username string) string {
@@ -87,18 +100,38 @@ func unexpectedErrorMsg(langCode lang.Code, errMsg string) string {
 	return fmt.Sprintf(unexpectedErrorMsgTmpl.In(langCode), md.Escape(errMsg))
 }
 
-func tournamentStartsInMsg(langCode lang.Code, players, mode string) string {
+func tournamentMsg(sub model.Subscription) string {
+	players, mode := subscriptionStr(sub)
+	return fmt.Sprintf(tournamentMsgTmpl, players, mode)
+}
+
+func tournamentStartsInMsg(langCode lang.Code, sub model.Subscription) string {
+	players, mode := subscriptionStr(sub)
 	return fmt.Sprintf(tournamentStartsInMsgTmpl.In(langCode), players, mode)
 }
 
-func subscriptionsList(langCode lang.Code, subscriptions []model.Subscription) string {
-	tournamentMsgTmpl := tournamentMsgTmpl.In(langCode)
+func subscriptionStr(sub model.Subscription) (players, mode string) {
+	switch sub.Players {
+	case rocketleague.P2x2:
+		players = "2x2"
+	case rocketleague.P3x3:
+		players = "3x3"
+	}
+	switch sub.Mode {
+	case rocketleague.Soccer:
+		mode = "Soccer"
+	case rocketleague.Pentathlon:
+		mode = "Pentathlon"
+	}
+	return players, mode
+}
 
+func subscriptionsList(langCode lang.Code, subscriptions []model.Subscription) string {
 	msg := strings.Builder{}
 	msg.WriteString(subscriptionsListHeaderMsg.In(langCode))
 	for _, sub := range subscriptions {
 		msg.WriteByte('\n')
-		msg.WriteString(fmt.Sprintf(tournamentMsgTmpl, sub.Players, sub.Mode))
+		msg.WriteString("- " + tournamentMsg(sub))
 	}
 	return msg.String()
 }

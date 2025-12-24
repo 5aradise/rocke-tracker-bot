@@ -80,3 +80,24 @@ func (s Storage) ListTelegramIDsBySubscription(
 	}
 	return ids, nil
 }
+
+func (s Storage) DeleteSubscriptionByTelegramID(ctx context.Context, tgID int64, sub model.Subscription) error {
+	rowsAff, err := queries.New(s.db).DeleteSubscription(ctx,
+		queries.DeleteSubscriptionParams{
+			TelegramID: sql.NullInt64{
+				Int64: tgID,
+				Valid: true,
+			},
+			Players: adapter.PlayersToDB(sub.Players),
+			Mode:    adapter.ModeToDB(sub.Mode),
+		})
+	if err != nil {
+		return err
+	}
+
+	if rowsAff == 0 {
+		return config.ErrNotFound
+	}
+
+	return nil
+}

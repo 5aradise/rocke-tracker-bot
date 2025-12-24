@@ -332,6 +332,10 @@ func (m *mockSubStorage) ListSubscriptionsByTelegramID(ctx context.Context, tgID
 	return subs, nil
 }
 
+func (m *mockSubStorage) DeleteSubscriptionByTelegramID(ctx context.Context, tgID int64, sub model.Subscription) error {
+	return nil
+}
+
 func assertNowIs(t *testing.T, expected time.Time) {
 	t.Helper()
 	assert.WithinDuration(t, expected, time.Now(), 10*time.Millisecond)

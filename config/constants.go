@@ -9,6 +9,7 @@ const ( // Codes
 	CodeUserWithTgIDExist    Code = 100
 	CodeUserHasSub           Code = 101
 	CodeUserWithTgIDNotExist Code = 102
+	CodeSubNotExist          Code = 103
 	CodeTODO                 Code = -1
 )
 

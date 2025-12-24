@@ -31,7 +31,8 @@ func New(userServ *userservice.Service, subServ *subservice.Service, adminID int
 
 		selectedPlayers: make(map[int64]rocketleague.Players),
 
-		adminID:     newID(adminID),
+		adminID: newID(adminID),
+
 		inAdminMode: make(map[int64]struct{}),
 	}
 }
@@ -84,11 +85,15 @@ func (h *Handler) Use(b *telebot.Bot) error {
 		return err
 	}
 
-	// buttons (subscription)
-	b.Handle(&players2x2Btn, h.onPlayersBtn(rocketleague.P2x2))
-	b.Handle(&players3x3Btn, h.onPlayersBtn(rocketleague.P3x3))
-	b.Handle(&modeSoccerBtn, h.onModeBtn(rocketleague.Soccer))
-	b.Handle(&modePentathlonBtn, h.onModeBtn(rocketleague.Pentathlon))
+	// static reply buttons (subscription)
+	b.Handle(&subPlayers2x2Btn, h.onPlayersBtn(rocketleague.P2x2))
+	b.Handle(&subPlayers3x3Btn, h.onPlayersBtn(rocketleague.P3x3))
+	// V V V
+	b.Handle(&subModeSoccerBtn, h.onModeBtn(rocketleague.Soccer))
+	b.Handle(&subModePentathlonBtn, h.onModeBtn(rocketleague.Pentathlon))
+
+	// dynamic inline buttons (for now only unsubscription)
+	b.Handle(telebot.OnCallback, h.onSelectedUnsubBtn)
 
 	// for admin mode
 	b.Handle(telebot.OnText, h.onText)
