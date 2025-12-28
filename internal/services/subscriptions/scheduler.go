@@ -51,7 +51,7 @@ func (s *Service) fetchWithRetries() []model.Tournament {
 		if err == nil {
 			return ts
 		}
-		log.Printf("(try %d) can't fetch tournaments: %s\n", i+2, err) //nolint
+		log.Printf("(try %d) can't fetch tournaments: %s\n", i+2, err)
 	}
 	return nil
 }

@@ -7,51 +7,64 @@ import (
 	"gopkg.in/telebot.v4"
 )
 
-type command struct {
+type commands []struct {
 	cmd         string
 	description lang.String
 	handler     telebot.HandlerFunc
 }
 
-type commands []command
-
 func (cmds commands) set(b *telebot.Bot) error {
-	var (
-		en    = make([]telebot.Command, 0, len(cmds))
-		uaru  = make([]telebot.Command, 0, len(cmds))
-		other = make([]telebot.Command, 0, len(cmds))
-	)
+	langCmds := [4]struct {
+		lang       string
+		tgLangCode string
+		lsLang     lang.Language
+		cmds       []telebot.Command
+	}{
+		{
+			lang:       "english",
+			tgLangCode: englishLandCode,
+			lsLang:     lang.English,
+			cmds:       make([]telebot.Command, 0, len(cmds)),
+		},
+		{
+			lang:       "ukrainian",
+			tgLangCode: ukrainianLandCode,
+			lsLang:     lang.Ukrainian,
+			cmds:       make([]telebot.Command, 0, len(cmds)),
+		},
+		{
+			lang:       "russian",
+			tgLangCode: russianLandCode,
+			lsLang:     lang.Russian,
+			cmds:       make([]telebot.Command, 0, len(cmds)),
+		},
+		{
+			lsLang: lang.Other,
+			cmds:   make([]telebot.Command, 0, len(cmds)),
+		},
+	}
+
 	for _, cmd := range cmds {
 		b.Handle("/"+cmd.cmd, cmd.handler)
 
-		en = append(en, telebot.Command{
-			Text:        cmd.cmd,
-			Description: cmd.description.In(lang.English),
-		})
-		uaru = append(uaru, telebot.Command{
-			Text:        cmd.cmd,
-			Description: cmd.description.In(lang.Ukrainian),
-		})
-		other = append(other, telebot.Command{
-			Text:        cmd.cmd,
-			Description: cmd.description.In(lang.Other),
-		})
+		for i, lc := range langCmds[:len(langCmds)-1] {
+			langCmds[i].cmds = append(lc.cmds, telebot.Command{
+				Text:        cmd.cmd,
+				Description: cmd.description.In(lc.lsLang),
+			})
+		}
 	}
-	err := b.SetCommands(english, en)
-	if err != nil {
-		return fmt.Errorf("setting up commands for english languages: %w", err)
+
+	iother := len(langCmds) - 1
+	for _, lc := range langCmds[:iother] {
+		err := b.SetCommands(lc.tgLangCode, lc.cmds)
+		if err != nil {
+			return fmt.Errorf("setting up commands for %s language: %w", lc.lang, err)
+		}
 	}
-	err = b.SetCommands(ukrainian, uaru)
+	err := b.SetCommands(langCmds[iother].cmds)
 	if err != nil {
-		return fmt.Errorf("setting up commands for ukrainian languages: %w", err)
-	}
-	err = b.SetCommands(russian, uaru)
-	if err != nil {
-		return fmt.Errorf("setting up commands for russian languages: %w", err)
-	}
-	err = b.SetCommands(other)
-	if err != nil {
-		return fmt.Errorf("setting up commands for other languages: %w", err)
+		return fmt.Errorf("setting up commands for other language: %w", err)
 	}
 	return nil
 }

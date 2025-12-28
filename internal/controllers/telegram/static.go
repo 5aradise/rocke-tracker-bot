@@ -9,24 +9,20 @@ import (
 	"strings"
 )
 
-const ( // telegram language codes
-	english   = "en"
-	ukrainian = "ua"
-	russian   = "ru"
-)
-
 var (
 	unexpectedErrorMsgTmpl = lang.NewString(
-		"An unexpected error has occurred:\n%s",
-		"Сталась непередбачувана помилка:\n%s",
+		"An unexpected error has occurred:\n"+
+			"%s",
+		"Сталась непередбачувана помилка:\n"+
+			"%s",
 	) // (error message)
 
 	greetingsMsgTmpl = lang.NewString(
 		"Hello, @%s!\n"+
-			"Here you can follow _Rocket League_ tournaments and maybe something else...\n"+ //nolint
+			"Here you can follow _Rocket League_ tournaments and maybe something else...\n"+
 			"Check out the *menu* to see all the commands",
 		"Привіт, @%s!\n"+
-			"Тут ти зможеш відслідковувати турніри по грі _Rocket League_ та, можливо, щось ще...\n"+ //nolint
+			"Тут ти зможеш відслідковувати турніри по грі _Rocket League_ та, можливо, щось ще...\n"+
 			"Переглянь *меню*, щоб побачити всі команди",
 	) // (username)
 
@@ -76,10 +72,10 @@ var (
 	)
 
 	youAreInAdminModeMsg = lang.NewString(
-		"You are in *admin mode*, each of your subsequent _text messages_ "+
-			"will be sent to the administration.\nTo exit, type /admin again",
-		"Ви в *адміністраторському режимі*, кожне твоє наступне _текстове повідомлення_ "+
-			"буде надіслане адміністрації.\nЩоб вийти напишіть знову /admin",
+		"You are in *admin mode*, each of your subsequent _text messages_ will be sent to the administration.\n"+
+			"To exit, type /admin again",
+		"Ви в *адміністраторському режимі*, кожне твоє наступне _текстове повідомлення_ буде надіслане адміністрації.\n"+
+			"Щоб вийти напишіть знову /admin",
 	)
 	youAreNotInAdminModeMsg = lang.NewString(
 		"You aren't in *admin mode*",
@@ -87,17 +83,21 @@ var (
 	)
 
 	tournamentStartsInMsgTmpl = lang.NewString(
-		"The tournament starts in *10 minutes*\nPlayers: %s\nMode: %s",
-		"Через *10 хвилин* турнір\nГравці: %s\nРежим: %s",
+		"The tournament starts in *10 minutes*\n"+
+			"Players: %s\n"+
+			"Mode: %s",
+		"Через *10 хвилин* турнір\n"+
+			"Гравці: %s\n"+
+			"Режим: %s",
 	) // (players, mode)
 )
 
-func greetingsMsg(langCode lang.Code, username string) string {
-	return fmt.Sprintf(greetingsMsgTmpl.In(langCode), md.Escape(username))
+func greetingsMsg(lang lang.Language, username string) string {
+	return fmt.Sprintf(greetingsMsgTmpl.In(lang), md.Escape(username))
 }
 
-func unexpectedErrorMsg(langCode lang.Code, errMsg string) string {
-	return fmt.Sprintf(unexpectedErrorMsgTmpl.In(langCode), md.Escape(errMsg))
+func unexpectedErrorMsg(lang lang.Language, errMsg string) string {
+	return fmt.Sprintf(unexpectedErrorMsgTmpl.In(lang), md.Escape(errMsg))
 }
 
 func tournamentMsg(sub model.Subscription) string {
@@ -105,9 +105,9 @@ func tournamentMsg(sub model.Subscription) string {
 	return fmt.Sprintf(tournamentMsgTmpl, players, mode)
 }
 
-func tournamentStartsInMsg(langCode lang.Code, sub model.Subscription) string {
+func tournamentStartsInMsg(lang lang.Language, sub model.Subscription) string {
 	players, mode := subscriptionStr(sub)
-	return fmt.Sprintf(tournamentStartsInMsgTmpl.In(langCode), players, mode)
+	return fmt.Sprintf(tournamentStartsInMsgTmpl.In(lang), players, mode)
 }
 
 func subscriptionStr(sub model.Subscription) (players, mode string) {
@@ -126,12 +126,11 @@ func subscriptionStr(sub model.Subscription) (players, mode string) {
 	return players, mode
 }
 
-func subscriptionsList(langCode lang.Code, subscriptions []model.Subscription) string {
+func subscriptionsList(lang lang.Language, subscriptions []model.Subscription) string {
 	msg := strings.Builder{}
-	msg.WriteString(subscriptionsListHeaderMsg.In(langCode))
+	msg.WriteString(subscriptionsListHeaderMsg.In(lang))
 	for _, sub := range subscriptions {
-		msg.WriteByte('\n')
-		msg.WriteString("- " + tournamentMsg(sub))
+		msg.WriteString("\n- " + tournamentMsg(sub))
 	}
 	return msg.String()
 }

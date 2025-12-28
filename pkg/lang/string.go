@@ -1,12 +1,12 @@
 package lang
 
-type Code string
+type Language uint8
 
-const ( // language codes
-	Other     Code = ""
-	English   Code = "en"
-	Ukrainian Code = "ua"
-	Russian   Code = "ru"
+const ( // languages
+	Other Language = iota
+	English
+	Ukrainian
+	Russian
 )
 
 type String struct {
@@ -32,7 +32,7 @@ func NewString(
 	}
 }
 
-func (s String) In(lang Code) string {
+func (s String) In(lang Language) string {
 	switch lang {
 	case English:
 		return s.en
