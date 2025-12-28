@@ -93,6 +93,8 @@ func (h *Handler) createSub(c telebot.Context, sub model.Subscription) error {
 		}
 	}
 
+	h.recentlyUnsubed.Delete(subscription{user.ID, sub})
+
 	return c.Send(youHaveSubscribedMsg.In(userLang))
 }
 
@@ -127,17 +129,9 @@ func (h *Handler) unsubscribe(c telebot.Context) error {
 	return c.Send(selectUnsubMsg.In(userLang), unsubsSquareKeyboard(subs))
 }
 
-func unsubsSquareKeyboard(subs []model.Subscription) *telebot.ReplyMarkup {
-	keyboard := &telebot.ReplyMarkup{}
-	btns := make([]telebot.Btn, 0, len(subs))
-	for _, sub := range subs {
-		btns = append(btns, keyboard.Data(
-			tournamentMsg(sub),
-			unsubDataFromSub(sub),
-		))
-	}
-	keyboard.Inline(keyboard.Split(maxSubBtnsInRow, btns)...)
-	return keyboard
+type subscription struct {
+	tgID int64
+	sub  model.Subscription
 }
 
 func (h *Handler) onSelectedUnsubBtn(c telebot.Context) error {
@@ -148,6 +142,11 @@ func (h *Handler) onSelectedUnsubBtn(c telebot.Context) error {
 	sub, err := subFromUnsubData(data)
 	if err != nil {
 		return c.Send(unexpectedErrorMsg(userLang, err.Error()))
+	}
+
+	_, unsubed := h.recentlyUnsubed.LoadOrStore(subscription{user.ID, sub}, struct{}{})
+	if unsubed {
+		return c.Send(youAreAlreadyUnsubscribedMsg.In(userLang))
 	}
 
 	serr := h.subs.UnsubscribeByTelegram(context.TODO(), user.ID, sub)
@@ -161,6 +160,19 @@ func (h *Handler) onSelectedUnsubBtn(c telebot.Context) error {
 	}
 
 	return c.Send(youHaveUnsubscribedMsg.In(userLang))
+}
+
+func unsubsSquareKeyboard(subs []model.Subscription) *telebot.ReplyMarkup {
+	keyboard := &telebot.ReplyMarkup{}
+	btns := make([]telebot.Btn, 0, len(subs))
+	for _, sub := range subs {
+		btns = append(btns, keyboard.Data(
+			tournamentMsg(sub),
+			unsubDataFromSub(sub),
+		))
+	}
+	keyboard.Inline(keyboard.Split(maxSubBtnsInRow, btns)...)
+	return keyboard
 }
 
 func unsubDataFromSub(sub model.Subscription) string {

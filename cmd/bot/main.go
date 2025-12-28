@@ -84,5 +84,6 @@ func main() {
 
 	<-interrupt
 	tgBot.Stop()
+	tgHandler.Shutdown()
 	log.Println("tg bot is shutted down")
 }

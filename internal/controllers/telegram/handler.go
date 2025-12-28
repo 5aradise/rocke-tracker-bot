@@ -4,11 +4,22 @@ import (
 	rocketleague "bot/internal/models/rocket-league"
 	subservice "bot/internal/services/subscriptions"
 	userservice "bot/internal/services/users"
+	"bot/pkg/cache"
 	"bot/pkg/lang"
 	"sync"
+	"time"
 
 	"gopkg.in/telebot.v4"
 )
+
+const recentlyUnsubedClearDelay = 10 * time.Minute
+
+type storage[K comparable, V any] interface {
+	LoadOrStore(K, V) (actual V, loaded bool)
+	Delete(K)
+
+	Stop()
+}
 
 type Handler struct {
 	users *userservice.Service
@@ -16,6 +27,9 @@ type Handler struct {
 
 	selectedPlayersMu sync.Mutex
 	selectedPlayers   map[int64]rocketleague.Players
+
+	// prevent rapid unsubscribing becouse client can do it easily
+	recentlyUnsubed storage[subscription, struct{}]
 
 	adminID id
 
@@ -30,6 +44,8 @@ func New(userServ *userservice.Service, subServ *subservice.Service, adminID int
 		subs:  subServ,
 
 		selectedPlayers: make(map[int64]rocketleague.Players),
+
+		recentlyUnsubed: cache.New[subscription, struct{}](recentlyUnsubedClearDelay),
 
 		adminID: newID(adminID),
 
@@ -99,4 +115,8 @@ func (h *Handler) Use(b *telebot.Bot) error {
 	b.Handle(telebot.OnText, h.onText)
 
 	return nil
+}
+
+func (h *Handler) Shutdown() {
+	h.recentlyUnsubed.Stop()
 }
