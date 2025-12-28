@@ -1,7 +1,7 @@
 include .env
 export $(shell sed 's/=.*//' .env)
 
-.PHONY: run build test fmt lint sql-generate migrate-up migrate-down
+.PHONY: run build test fmt sql-generate migrate-up migrate-down
 
 run: build
 	./bin/bot
@@ -14,9 +14,6 @@ test:
 
 fmt:
 	go fmt ./...
-
-lint:
-	go tool golangci-lint run
 
 sql-generate:
 	go tool sqlc generate
